@@ -8,6 +8,7 @@
 
 /*
   Copyright 2015  Dean Camera (dean [at] fourwalledcubicle [dot] com)
+  Copyright 2019  Benjamin Riggs (https://github.com/riggs)
 
   Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
@@ -41,6 +42,7 @@
 		#include <avr/wdt.h>
 		#include <avr/interrupt.h>
 		#include <avr/power.h>
+    #include <avr/eeprom.h>
 
 		#include "Descriptors.h"
 
@@ -52,16 +54,16 @@
 
 	/* Macros: */
 		/** LED mask for the library LED driver, to indicate TX activity. */
-                #define LEDMASK_TX               LEDS_LED1
+    #define LEDMASK_TX               LEDS_LED1
 
-                /** LED mask for the library LED driver, to indicate RX activity. */
-                #define LEDMASK_RX               LEDS_LED2
+    /** LED mask for the library LED driver, to indicate RX activity. */
+    #define LEDMASK_RX               LEDS_LED2
 
-                /** LED mask for the library LED driver, to indicate that an error has occurred in the USB interface. */
-                #define LEDMASK_ERROR            (LEDS_LED1 | LEDS_LED2)
+    /** LED mask for the library LED driver, to indicate that an error has occurred in the USB interface. */
+    #define LEDMASK_ERROR            (LEDS_LED1 | LEDS_LED2)
 
-                /** LED mask for the library LED driver, to indicate that the USB interface is busy. */
-                #define LEDMASK_BUSY             (LEDS_LED1 | LEDS_LED2)
+    /** LED mask for the library LED driver, to indicate that the USB interface is busy. */
+    #define LEDMASK_BUSY             (LEDS_LED1 | LEDS_LED2)
 
 	/* Function Prototypes: */
 		void SetupHardware(void);

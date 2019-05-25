@@ -8,6 +8,7 @@
 
 /*
   Copyright 2015  Dean Camera (dean [at] fourwalledcubicle [dot] com)
+  Copyright 2019  Benjamin Riggs (https://github.com/riggs)
 
   Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
@@ -41,6 +42,9 @@
 
 #include "Arduino-usbserial.h"
 
+/** Toggle for WebUSB endpoints enabled from host. */
+extern uint8_t WebUSB_Enabled;
+
 /** Circular buffer to hold data from the host before it is sent to the device via the serial port. */
 static RingBuffer_t USBtoUSART_Buffer;
 
@@ -61,7 +65,7 @@ static volatile uint8_t RxLEDPulseTimer;
  *  passed to all CDC Class driver functions, so that multiple instances of the same class
  *  within a device can be differentiated from one another.
  */
-USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface =
+const USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface =
 	{
 		.Config =
 			{
@@ -94,6 +98,8 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface =
 int main(void)
 {
 	SetupHardware();
+
+  WebUSB_Enabled = eeprom_read_byte((uint8_t *) WEBUSB_ENABLE_BYTE_ADDRESS) & 1;
 
 	RingBuffer_InitBuffer(&USBtoUSART_Buffer, USBtoUSART_Buffer_Data, sizeof(USBtoUSART_Buffer_Data));
 	RingBuffer_InitBuffer(&USARTtoUSB_Buffer, USARTtoUSB_Buffer_Data, sizeof(USARTtoUSB_Buffer_Data));
@@ -195,10 +201,205 @@ void EVENT_USB_Device_ConfigurationChanged(void)
 	CDC_Device_ConfigureEndpoints(&VirtualSerial_CDC_Interface);
 }
 
+/** Event handler for the USB_Disconnect event. This indicates the device is no longer connected to the host and the
+ *  device should revert to default interfaces.
+ */
+void EVENT_USB_Device_Disconnect(void)
+{
+	Endpoint_ClearSETUP();
+	Endpoint_ClearStatusStage();
+    CDC_Device_ConfigureEndpoints(&VirtualSerial_CDC_Interface);
+}
+
+/** Microsoft OS 2.0 Descriptor. This is used by Windows to select the USB driver for the device.
+ *
+ *  For WebUSB in Chrome, the correct driver is WinUSB, which is selected via CompatibleID.
+ *
+ *  Additionally, while Chrome is built using libusb, a magic registry key needs to be set containing a GUID for
+ *  the device.
+ */
+const MS_OS_20_Descriptor_t PROGMEM MS_OS_20_Descriptor =
+	{
+		.Header =
+			{
+				.Length = CPU_TO_LE16(10),
+				.DescriptorType = CPU_TO_LE16(MS_OS_20_SET_HEADER_DESCRIPTOR),
+				.WindowsVersion = MS_OS_20_WINDOWS_VERSION_8_1,
+				.TotalLength = CPU_TO_LE16(MS_OS_20_DESCRIPTOR_SET_TOTAL_LENGTH)
+			},
+
+		.Configuration1 =
+			{
+				.Length = CPU_TO_LE16(8),
+				.DescriptorType = CPU_TO_LE16(MS_OS_20_SUBSET_HEADER_CONFIGURATION),
+				.ConfigurationValue = 1,
+				.Reserved = 0,
+				.TotalLength = CPU_TO_LE16(8 + 8 + 20)
+			},
+
+		.CDC_Function =
+			{
+				.Length = CPU_TO_LE16(8),
+				.DescriptorType = CPU_TO_LE16(MS_OS_20_SUBSET_HEADER_FUNCTION),
+				.FirstInterface = INTERFACE_ID_CDC_CCI,
+				.Reserved = 0,
+				.SubsetLength = CPU_TO_LE16(8 + 20)
+			},
+
+		.CDC_CompatibleID =
+			{
+				.Length = CPU_TO_LE16(20),
+				.DescriptorType = CPU_TO_LE16(MS_OS_20_FEATURE_COMPATBLE_ID),
+				.CompatibleID = u8"USBSER\x00", // Automatically null-terminated to 8 bytes
+				.SubCompatibleID = {0, 0, 0, 0, 0, 0, 0, 0}
+			},
+
+		.WebUSB_Function =
+			{
+				.Length = CPU_TO_LE16(8),
+				.DescriptorType = CPU_TO_LE16(MS_OS_20_SUBSET_HEADER_FUNCTION),
+				.FirstInterface = INTERFACE_ID_WEBUSB,
+				.Reserved = 0,
+				.SubsetLength = CPU_TO_LE16(8 + 20 + 10 + 42 + 80)
+			},
+
+		.WebUSB_CompatibleID =
+			{
+				.Length = CPU_TO_LE16(20),
+				.DescriptorType = CPU_TO_LE16(MS_OS_20_FEATURE_COMPATBLE_ID),
+				.CompatibleID = u8"WINUSB\x00", // Automatically null-terminated to 8 bytes
+				.SubCompatibleID = {0, 0, 0, 0, 0, 0, 0, 0}
+			},
+
+		.WebUSB_RegistryData =
+			{
+				.Length = CPU_TO_LE16(10 + 42 + 80),
+				.DescriptorType = CPU_TO_LE16(MS_OS_20_FEATURE_REG_PROPERTY),
+				.PropertyDataType = CPU_TO_LE16(MS_OS_20_REG_MULTI_SZ),
+				.PropertyNameLength = CPU_TO_LE16(sizeof(MS_OS_20_REGISTRY_KEY)),
+				.PropertyName = MS_OS_20_REGISTRY_KEY, // 42 bytes
+				.PropertyDataLength = CPU_TO_LE16(sizeof(MS_OS_20_DEVICE_GUID_STRING_OF_STRING)),
+				.PropertyData = MS_OS_20_DEVICE_GUID_STRING_OF_STRING // 82 bytes
+			}
+	};
+
+const MS_OS_20_Descriptor_WebUSB_t PROGMEM MS_OS_20_Descriptor_WebUSB =
+    {
+        .Header =
+            {
+                .Length = CPU_TO_LE16(10),
+                .DescriptorType = CPU_TO_LE16(MS_OS_20_SET_HEADER_DESCRIPTOR),
+                .WindowsVersion = MS_OS_20_WINDOWS_VERSION_8_1,
+                .TotalLength = CPU_TO_LE16(MS_OS_20_DESCRIPTOR_SET_TOTAL_LENGTH_WEBUSB)
+            },
+
+        .CompatibleID =
+            {
+                .Length = CPU_TO_LE16(20),
+                .DescriptorType = CPU_TO_LE16(MS_OS_20_FEATURE_COMPATBLE_ID),
+                .CompatibleID = u8"WINUSB\x00", // Automatically null-terminated to 8 bytes
+                .SubCompatibleID = {0, 0, 0, 0, 0, 0, 0, 0}
+            }
+    };
+
+/** URL descriptor string. This is a UTF-8 string containing a URL excluding the prefix. At least one of these must be
+ * 	defined and returned when the Landing Page descriptor index is requested.
+ */
+const WebUSB_URL_Descriptor_t PROGMEM WebUSB_LandingPage = WEBUSB_URL_DESCRIPTOR(1, u8"www.entropicengineering.com");
+
+
 /** Event handler for the library USB Control Request reception event. */
 void EVENT_USB_Device_ControlRequest(void)
 {
-	CDC_Device_ProcessControlRequest(&VirtualSerial_CDC_Interface);
+	switch (USB_ControlRequest.bmRequestType) {
+		/* Set Interface is not handled by the library, as its function is application-specific */
+		/* Handle Vendor Requests for WebUSB & MS OS 20 Descriptors */
+		case (REQDIR_DEVICETOHOST | REQTYPE_VENDOR | REQREC_DEVICE):
+			/* Free the endpoint for the next Request */
+			switch (USB_ControlRequest.bRequest) {
+				case WEBUSB_VENDOR_CODE:
+					switch (USB_ControlRequest.wIndex) {
+						case WebUSB_RTYPE_GetURL:
+							switch (USB_ControlRequest.wValue) {
+								case WEBUSB_LANDING_PAGE_INDEX:
+                                    Endpoint_ClearSETUP();
+									/* Write the descriptor data to the control endpoint */
+									Endpoint_Write_Control_PStream_LE(&WebUSB_LandingPage, WebUSB_LandingPage.Header.Size);
+									/* Release the endpoint after transaction. */
+                                    Endpoint_ClearStatusStage();
+									break;
+								default:    /* Stall transfer on invalid index. */
+									Endpoint_StallTransaction();
+									break;
+							}
+							break;
+						default:    /* Stall on unknown WebUSB request */
+							Endpoint_StallTransaction();
+							break;
+					}
+					break;
+				case MS_OS_20_VENDOR_CODE:
+					switch (USB_ControlRequest.wIndex) {
+						case MS_OS_20_DESCRIPTOR_INDEX:
+                            Endpoint_ClearSETUP();
+							/* Write the descriptor data to the control endpoint */
+							if (WebUSB_Enabled) {
+                                Endpoint_Write_Control_PStream_LE(&MS_OS_20_Descriptor_WebUSB, MS_OS_20_Descriptor_WebUSB.Header.TotalLength);
+							} else {
+                                Endpoint_Write_Control_PStream_LE(&MS_OS_20_Descriptor, MS_OS_20_Descriptor.Header.TotalLength);
+							}
+							/* Release the endpoint after transaction. */
+                            Endpoint_ClearStatusStage();
+							break;
+						case MS_OS_20_SET_ALT_ENUMERATION:
+							switch (USB_ControlRequest.wValue) {
+								case (MS_OS_20_ALTERNATE_ENUMERATION_CODE << 8):	// High byte
+                                    Endpoint_ClearSETUP();
+									// Do something with alternate interface settings
+                                    break;
+                                default:	/* Unknown AltEnumCode */
+                                    Endpoint_StallTransaction();
+							}
+						default:    /* Stall on unknown MS OS 2.0 request */
+							Endpoint_StallTransaction();
+							break;
+					}
+					break;
+				default:    /* Stall on unknown bRequest / Vendor Code */
+					Endpoint_StallTransaction();
+					break;
+			}
+			break;
+        case (REQDIR_HOSTTODEVICE | REQTYPE_VENDOR | REQREC_DEVICE):
+            /* Free the endpoint for the next Request */
+            switch (USB_ControlRequest.bRequest) {
+                case WEBUSB_VENDOR_CODE:
+                    switch (USB_ControlRequest.wIndex) {
+                        case WebUSB_RTYPE_Enable:
+                            Endpoint_ClearSETUP();
+                            /* Update state, if necessary */
+                            if (WebUSB_Enabled != USB_ControlRequest.wValue & 1) {
+                                WebUSB_Enabled = USB_ControlRequest.wValue & 1;
+                                eeprom_write_byte((uint8_t *) WEBUSB_ENABLE_BYTE_ADDRESS, WebUSB_Enabled);
+                                Endpoint_ClearStatusStage();
+                                USB_Disable();
+                            } else {
+                                Endpoint_ClearStatusStage();
+                            }
+                        default:    /* Stall on unknown MS OS 2.0 request */
+                            Endpoint_StallTransaction();
+                            break;
+                    }
+                    break;
+                default:    /* Stall on unknown bRequest / Vendor Code */
+                    Endpoint_StallTransaction();
+                    break;
+            }
+            break;
+		default:
+			CDC_Device_ProcessControlRequest(&VirtualSerial_CDC_Interface);
+			break;
+	}
 }
 
 /** ISR to turn off the TX/RX LEDs after an appropriate delay. */

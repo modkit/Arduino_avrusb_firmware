@@ -229,7 +229,7 @@ const USB_Descriptor_String_t DESCRIPTOR_PROGMEM ProductString = USB_STRING_DESC
  *  USB host.
  */
 uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
-                                    const uint8_t wIndex,
+                                    const uint16_t wIndex,
                                     const void** const DescriptorAddress)
 {
 	const uint8_t  DescriptorType   = (wValue >> 8);

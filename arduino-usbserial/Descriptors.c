@@ -47,25 +47,25 @@ uint8_t WebUSB_Enabled = 0;
  */
 const USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
 {
-	.Header                 = {.Size = sizeof(USB_Descriptor_Device_t), .Type = DTYPE_Device},
+    .Header                 = {.Size = sizeof(USB_Descriptor_Device_t), .Type = DTYPE_Device},
 
     .USBSpecification       = VERSION_BCD(2,1,0),
 
-	.Class                  = USB_CSCP_IADDeviceClass,
-	.SubClass               = USB_CSCP_IADDeviceSubclass,
-	.Protocol               = USB_CSCP_IADDeviceProtocol,
+    .Class                  = USB_CSCP_IADDeviceClass,
+    .SubClass               = USB_CSCP_IADDeviceSubclass,
+    .Protocol               = USB_CSCP_IADDeviceProtocol,
 
-	.Endpoint0Size          = FIXED_CONTROL_ENDPOINT_SIZE,
+    .Endpoint0Size          = FIXED_CONTROL_ENDPOINT_SIZE,
 
-	.VendorID               = 0x2341, // Arduino
-	.ProductID              = ARDUINO_MODEL_PID,
-	.ReleaseNumber          = VERSION_BCD(0,0,2),
+    .VendorID               = 0x2341, // Arduino
+    .ProductID              = ARDUINO_MODEL_PID,
+    .ReleaseNumber          = VERSION_BCD(0,0,2),
 
-	.ManufacturerStrIndex   = STRING_ID_Manufacturer,
-	.ProductStrIndex        = STRING_ID_Product,
-	.SerialNumStrIndex      = USE_INTERNAL_SERIAL,
+    .ManufacturerStrIndex   = STRING_ID_Manufacturer,
+    .ProductStrIndex        = STRING_ID_Product,
+    .SerialNumStrIndex      = USE_INTERNAL_SERIAL,
 
-	.NumberOfConfigurations = FIXED_NUM_CONFIGURATIONS
+    .NumberOfConfigurations = FIXED_NUM_CONFIGURATIONS
 };
 
 const USB_Descriptor_Device_t PROGMEM DeviceDescriptor_WebUSB =
@@ -99,7 +99,7 @@ const USB_Descriptor_Device_t PROGMEM DeviceDescriptor_WebUSB =
  */
 
 const USB_Descriptor_BOS_t PROGMEM BOSDescriptor = BOS_DESCRIPTOR(
-	(MS_OS_20_PLATFORM_DESCRIPTOR(MS_OS_20_VENDOR_CODE, MS_OS_20_DESCRIPTOR_SET_TOTAL_LENGTH))
+    (MS_OS_20_PLATFORM_DESCRIPTOR(MS_OS_20_VENDOR_CODE, MS_OS_20_DESCRIPTOR_SET_TOTAL_LENGTH))
     (WEBUSB_PLATFORM_DESCRIPTOR(WEBUSB_VENDOR_CODE, WEBUSB_LANDING_PAGE_INDEX))
 );
 
@@ -116,121 +116,121 @@ const USB_Descriptor_BOS_t PROGMEM BOSDescriptor_WebUSB = BOS_DESCRIPTOR(
  */
 const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 {
-	.Config =
-		{
-			.Header                 = {.Size = sizeof(USB_Descriptor_Configuration_Header_t), .Type = DTYPE_Configuration},
+    .Config =
+        {
+            .Header                 = {.Size = sizeof(USB_Descriptor_Configuration_Header_t), .Type = DTYPE_Configuration},
 
-			.TotalConfigurationSize = sizeof(USB_Descriptor_Configuration_t),
-			.TotalInterfaces        = 3,
+            .TotalConfigurationSize = sizeof(USB_Descriptor_Configuration_t),
+            .TotalInterfaces        = 3,
 
-			.ConfigurationNumber    = DEFAULT_CONFIG_INDEX,
-			.ConfigurationStrIndex  = NO_DESCRIPTOR,
+            .ConfigurationNumber    = DEFAULT_CONFIG_INDEX,
+            .ConfigurationStrIndex  = NO_DESCRIPTOR,
 
-			.ConfigAttributes       = (USB_CONFIG_ATTR_RESERVED | USB_CONFIG_ATTR_SELFPOWERED),
+            .ConfigAttributes       = (USB_CONFIG_ATTR_RESERVED | USB_CONFIG_ATTR_SELFPOWERED),
 
-			.MaxPowerConsumption    = USB_CONFIG_POWER_MA(100)
-		},
+            .MaxPowerConsumption    = USB_CONFIG_POWER_MA(100)
+        },
    
     .CDC_Interface_Association =
-    	{
-			.Header					= {.Size = sizeof(USB_Descriptor_Interface_Association_t), .Type = DTYPE_InterfaceAssociation},
+        {
+            .Header					= {.Size = sizeof(USB_Descriptor_Interface_Association_t), .Type = DTYPE_InterfaceAssociation},
 
-			.FirstInterfaceIndex	= INTERFACE_ID_CDC_CCI,
-			.TotalInterfaces		= 2,
+            .FirstInterfaceIndex	= INTERFACE_ID_CDC_CCI,
+            .TotalInterfaces		= 2,
 
-			.Class                  = CDC_CSCP_CDCClass,
-			.SubClass               = CDC_CSCP_ACMSubclass,
-			.Protocol               = CDC_CSCP_ATCommandProtocol,
+            .Class                  = CDC_CSCP_CDCClass,
+            .SubClass               = CDC_CSCP_ACMSubclass,
+            .Protocol               = CDC_CSCP_ATCommandProtocol,
 
-			.IADStrIndex			= NO_DESCRIPTOR
+            .IADStrIndex			= NO_DESCRIPTOR
         },
 
-	.CDC_CCI_Interface =
-		{
-			.Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
+    .CDC_CCI_Interface =
+        {
+            .Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
 
-			.InterfaceNumber        = INTERFACE_ID_CDC_CCI,
-			.AlternateSetting       = 0,
+            .InterfaceNumber        = INTERFACE_ID_CDC_CCI,
+            .AlternateSetting       = 0,
 
-			.TotalEndpoints         = 1,
+            .TotalEndpoints         = 1,
 
-			.Class                  = CDC_CSCP_CDCClass,
-			.SubClass               = CDC_CSCP_ACMSubclass,
-			.Protocol               = CDC_CSCP_ATCommandProtocol,
+            .Class                  = CDC_CSCP_CDCClass,
+            .SubClass               = CDC_CSCP_ACMSubclass,
+            .Protocol               = CDC_CSCP_ATCommandProtocol,
 
-			.InterfaceStrIndex      = NO_DESCRIPTOR
-		},
+            .InterfaceStrIndex      = NO_DESCRIPTOR
+        },
 
-	.CDC_Functional_Header =
-		{
-			.Header                 = {.Size = sizeof(USB_CDC_Descriptor_FunctionalHeader_t), .Type = DTYPE_CSInterface},
-			.Subtype                = CDC_DSUBTYPE_CSInterface_Header,
+    .CDC_Functional_Header =
+        {
+            .Header                 = {.Size = sizeof(USB_CDC_Descriptor_FunctionalHeader_t), .Type = DTYPE_CSInterface},
+            .Subtype                = CDC_DSUBTYPE_CSInterface_Header,
 
-			.CDCSpecification       = VERSION_BCD(1,1,0),
-		},
+            .CDCSpecification       = VERSION_BCD(1,1,0),
+        },
 
-	.CDC_Functional_ACM =
-		{
-			.Header                 = {.Size = sizeof(USB_CDC_Descriptor_FunctionalACM_t), .Type = DTYPE_CSInterface},
-			.Subtype                = CDC_DSUBTYPE_CSInterface_ACM,
+    .CDC_Functional_ACM =
+        {
+            .Header                 = {.Size = sizeof(USB_CDC_Descriptor_FunctionalACM_t), .Type = DTYPE_CSInterface},
+            .Subtype                = CDC_DSUBTYPE_CSInterface_ACM,
 
-			.Capabilities           = 0x06, /* Supports Network_Connection, Get_Line_Encoding, Set_Line_Encoding, Serial_State */
-		},
+            .Capabilities           = 0x06, /* Supports Network_Connection, Get_Line_Encoding, Set_Line_Encoding, Serial_State */
+        },
 
-	.CDC_Functional_Union =
-		{
-			.Header                 = {.Size = sizeof(USB_CDC_Descriptor_FunctionalUnion_t), .Type = DTYPE_CSInterface},
-			.Subtype                = CDC_DSUBTYPE_CSInterface_Union,
+    .CDC_Functional_Union =
+        {
+            .Header                 = {.Size = sizeof(USB_CDC_Descriptor_FunctionalUnion_t), .Type = DTYPE_CSInterface},
+            .Subtype                = CDC_DSUBTYPE_CSInterface_Union,
 
-			.MasterInterfaceNumber  = INTERFACE_ID_CDC_CCI,
-			.SlaveInterfaceNumber   = INTERFACE_ID_CDC_DCI,
-		},
+            .MasterInterfaceNumber  = INTERFACE_ID_CDC_CCI,
+            .SlaveInterfaceNumber   = INTERFACE_ID_CDC_DCI,
+        },
 
-	.CDC_NotificationEndpoint =
-		{
-			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+    .CDC_NotificationEndpoint =
+        {
+            .Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
 
-			.EndpointAddress        = CDC_NOTIFICATION_EPADDR,
-			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
-			.EndpointSize           = CDC_NOTIFICATION_EPSIZE,
-			.PollingIntervalMS      = 0xFF
-		},
+            .EndpointAddress        = CDC_NOTIFICATION_EPADDR,
+            .Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+            .EndpointSize           = CDC_NOTIFICATION_EPSIZE,
+            .PollingIntervalMS      = 0xFF
+        },
 
-	.CDC_DCI_Interface =
-		{
-			.Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
+    .CDC_DCI_Interface =
+        {
+            .Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
 
-			.InterfaceNumber        = INTERFACE_ID_CDC_DCI,
-			.AlternateSetting       = 0,
+            .InterfaceNumber        = INTERFACE_ID_CDC_DCI,
+            .AlternateSetting       = 0,
 
-			.TotalEndpoints         = 2,
+            .TotalEndpoints         = 2,
 
-			.Class                  = CDC_CSCP_CDCDataClass,
-			.SubClass               = CDC_CSCP_NoDataSubclass,
-			.Protocol               = CDC_CSCP_NoDataProtocol,
+            .Class                  = CDC_CSCP_CDCDataClass,
+            .SubClass               = CDC_CSCP_NoDataSubclass,
+            .Protocol               = CDC_CSCP_NoDataProtocol,
 
-			.InterfaceStrIndex      = NO_DESCRIPTOR
-		},
+            .InterfaceStrIndex      = NO_DESCRIPTOR
+        },
 
-	.CDC_DataOutEndpoint =
-		{
-			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+    .CDC_DataOutEndpoint =
+        {
+            .Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
 
-			.EndpointAddress        = CDC_RX_EPADDR,
-			.Attributes             = (EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
-			.EndpointSize           = CDC_TXRX_EPSIZE,
-			.PollingIntervalMS      = 0x05
-		},
+            .EndpointAddress        = CDC_RX_EPADDR,
+            .Attributes             = (EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+            .EndpointSize           = CDC_TXRX_EPSIZE,
+            .PollingIntervalMS      = 0x05
+        },
 
-	.CDC_DataInEndpoint =
-		{
-			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+    .CDC_DataInEndpoint =
+        {
+            .Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
 
-			.EndpointAddress        = CDC_TX_EPADDR,
-			.Attributes             = (EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
-			.EndpointSize           = CDC_TXRX_EPSIZE,
-			.PollingIntervalMS      = 0x05
-		},
+            .EndpointAddress        = CDC_TX_EPADDR,
+            .Attributes             = (EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+            .EndpointSize           = CDC_TXRX_EPSIZE,
+            .PollingIntervalMS      = 0x05
+        },
 
     .WebUSB_CDC_Interface =
         {
@@ -369,73 +369,73 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
                                     const uint16_t wIndex,
                                     const void** const DescriptorAddress)
 {
-	const uint8_t  DescriptorType   = (wValue >> 8);
-	const uint8_t  DescriptorNumber = (wValue & 0xFF);
+    const uint8_t  DescriptorType   = (wValue >> 8);
+    const uint8_t  DescriptorNumber = (wValue & 0xFF);
 
-	const void* Address = NULL;
-	uint16_t    Size    = NO_DESCRIPTOR;
+    const void* Address = NULL;
+    uint16_t    Size    = NO_DESCRIPTOR;
 
-	switch (DescriptorType)
-	{
-		case DTYPE_Device:
-		    if (WebUSB_Enabled) {
+    switch (DescriptorType)
+    {
+        case DTYPE_Device:
+            if (WebUSB_Enabled) {
                 Address = &DeviceDescriptor_WebUSB;
                 LEDs_ToggleLEDs(LEDS_LED1);
-		    } else {
+            } else {
                 Address = &DeviceDescriptor;
                 LEDs_ToggleLEDs(LEDS_ALL_LEDS);
-		    }
+            }
             Size    = sizeof(USB_Descriptor_Device_t);
-			break;
-		case DTYPE_BOS:
-			if (WebUSB_Enabled) {
+            break;
+        case DTYPE_BOS:
+            if (WebUSB_Enabled) {
                 Address = &BOSDescriptor_WebUSB;
                 Size = pgm_read_byte(&BOSDescriptor_WebUSB.TotalLength);
                 LEDs_ToggleLEDs(LEDS_LED1);
-			} else {
+            } else {
                 Address = &BOSDescriptor;
                 Size = pgm_read_byte(&BOSDescriptor.TotalLength);
-			}
-			break;
-		case DTYPE_Configuration:
-		    if (WebUSB_Enabled) {
+            }
+            break;
+        case DTYPE_Configuration:
+            if (WebUSB_Enabled) {
                 Address = &ConfigurationDescriptor_WebUSB;
                 Size    = sizeof(USB_Descriptor_Configuration_WebUSB_t);
                 LEDs_ToggleLEDs(LEDS_LED1);
-		    } else {
+            } else {
                 Address = &ConfigurationDescriptor;
                 Size    = sizeof(USB_Descriptor_Configuration_t);
-		    }
+            }
             break;
-		case DTYPE_String:
-			switch (DescriptorNumber)
-			{
-				case STRING_ID_Language:
-					Address = &LanguageString;
-					Size    = pgm_read_byte(&LanguageString.Header.Size);
-					break;
-				case STRING_ID_Manufacturer:
-				    if (WebUSB_Enabled) {
+        case DTYPE_String:
+            switch (DescriptorNumber)
+            {
+                case STRING_ID_Language:
+                    Address = &LanguageString;
+                    Size    = pgm_read_byte(&LanguageString.Header.Size);
+                    break;
+                case STRING_ID_Manufacturer:
+                    if (WebUSB_Enabled) {
                         Address = &ManufacturerString_WebUSB;
                         Size    = pgm_read_byte(&ManufacturerString_WebUSB.Header.Size);
-				    } else {
+                    } else {
                         Address = &ManufacturerString;
                         Size    = pgm_read_byte(&ManufacturerString.Header.Size);
-				    }
-					break;
-				case STRING_ID_Product:
-				    if (WebUSB_Enabled) {
+                    }
+                    break;
+                case STRING_ID_Product:
+                    if (WebUSB_Enabled) {
                         Address = &ProductString_WebUSB;
                         Size    = pgm_read_byte(&ProductString_WebUSB.Header.Size);
                     } else {
                         Address = &ProductString;
                         Size    = pgm_read_byte(&ProductString.Header.Size);
-				    }
-					break;
-			}
-			break;
-	}
+                    }
+                    break;
+            }
+            break;
+    }
 
-	*DescriptorAddress = Address;
-	return Size;
+    *DescriptorAddress = Address;
+    return Size;
 }

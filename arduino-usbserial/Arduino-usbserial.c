@@ -9,6 +9,7 @@
 /*
   Copyright 2015  Dean Camera (dean [at] fourwalledcubicle [dot] com)
   Copyright 2019  Benjamin Riggs (https://github.com/riggs)
+  Copyright 2019  Modkit Inc. (open [at] modkit [dot] com)
 
   Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
@@ -60,6 +61,16 @@ static uint8_t      USARTtoUSB_Buffer_Data[128];
 /** Pulse generation counters to keep track of the number of 1/100 second remaining for each pulse type */
 static volatile uint8_t TxLEDPulseTimer;
 static volatile uint8_t RxLEDPulseTimer;
+
+void resetDeviceAfter2Seconds(void)
+  {
+	  USB_Disable();//disable usb
+	  cli(); //disable interrupts
+	  Delay_MS(2000);//wait a bit for usb to properly disconnect
+	  wdt_enable(WDTO_250MS);
+	  while(1);//wait until watchdog resets
+  }
+
 
 /** LUFA CDC Class driver interface configuration and state information. This structure is
  *  passed to all CDC Class driver functions, so that multiple instances of the same class
@@ -382,7 +393,7 @@ void EVENT_USB_Device_ControlRequest(void)
                                 WebUSB_Enabled = USB_ControlRequest.wValue & 1;
                                 eeprom_write_byte((uint8_t *) WEBUSB_ENABLE_BYTE_ADDRESS, WebUSB_Enabled);
                                 Endpoint_ClearStatusStage();
-                                USB_Disable();
+								resetDeviceAfter2Seconds();
                             } else {
                                 Endpoint_ClearStatusStage();
                             }

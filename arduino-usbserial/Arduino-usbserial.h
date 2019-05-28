@@ -9,7 +9,8 @@
 /*
   Copyright 2015  Dean Camera (dean [at] fourwalledcubicle [dot] com)
   Copyright 2019  Benjamin Riggs (https://github.com/riggs)
-
+  Copyright 2019  Modkit Inc. (open [at] modkit [dot] com)
+ 
   Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
   without fee, provided that the above copyright notice appear in
@@ -42,8 +43,8 @@
 		#include <avr/wdt.h>
 		#include <avr/interrupt.h>
 		#include <avr/power.h>
-    #include <avr/eeprom.h>
-
+    	#include <avr/eeprom.h>
+		#include <util/delay.h>
 		#include "Descriptors.h"
 
 		#include <LUFA/Drivers/Board/LEDs.h>
